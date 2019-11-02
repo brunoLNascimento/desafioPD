@@ -1,34 +1,32 @@
 const mysql = require('mysql');
 const connection = require('../config/env')
 
-exports.encontraDiscoId = function(condicao, res){
+exports.encontraColecaoId = function(condicao, res){
     var conexao = mysql.createConnection(connection.mysql)
     conexao.query(
         `SELECT  
-            D.ID_DISCO AS idDisco,
-            D.NOME_DISCO AS nomeDisco,
-            D.DESC_DISCO AS descricao,
-            D.DATA_LANCAMENTO AS dataLancamento,
-            D.CARACTERISTICAS AS caractristicas
+            C.ID_COLECAO AS idColecao,
+            C.NOME_COLECAO AS nomeColecao,
+            C.DESC_COLECAO AS descricao
         FROM
-            desafioPD.disco_tb D
+            desafioPD.colecao_tb C
         WHERE 
-            ID_DISCO = ${condicao}
+            ID_COLECAO = ${condicao.id}
         AND 
             ATIVO = 1`,        
     function (error, results) {
             if (error) {
                 console.error(error)
-                return res.status(500).send({mensagem: "Erro ao consultar disco"})
+                return res.status(500).send({mensagem: "Erro ao consultar coleção"})
             }else if(!results.length){
-                return res.status(400).send({mensagem: "Nenhum disco encontrado"})
+                return res.status(400).send({mensagem: "Nenhuma coleção encontrado"})
             }else{
                 return res.status(200).send(results)
             }
         });
 }
 
-exports.encontraDisco = function(condicao, res){
+exports.encontraColecao = function(condicao, res){
     var conexao = mysql.createConnection(connection.mysql)
 
     conexao.query(
@@ -48,7 +46,7 @@ exports.encontraDisco = function(condicao, res){
         AND
             D.ATIVO = 1   
         AND
-            DESC_DISCO LIKE N? 
+            NOME_COLECAO  LIKE N? 
 
         ORDER BY 
             ID_DISCO DESC 

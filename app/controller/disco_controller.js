@@ -1,10 +1,14 @@
-const modelDisco = require('../model/disco_model')
-const serviceDisco = require('../service/buscaDisco_service')
-const mysql = require('mysql');
-const connection = require('../config/env')
+const serviceDisco = require('../service/discoService')
+const util = require('../util/validaUtil')
 
-exports.salvaDisco = function(req, res){
-    console.log("teste")
+
+exports.cadastraDisco = function(req, res){
+    var body = req.body
+    var salvaDisco =  util.validaParametrosDisco(body, res)
+    console.log(salvaDisco)
+
+    serviceDisco.criaDisco(salvaDisco, res)
+
 }
 
 exports.buscaDisco = async function(req, res){
@@ -16,21 +20,8 @@ exports.encontraDisco = async function(req, res){
     var page = req.params.page
     var limit = 50
 
-    // if(req.query.action == "lancamento"){
-    //     buscaDiscoDtLancamento(req.params)
-    // }else if(req.query.action == "disco"){
-    //     buscaDisco(req.params)
-    // }else if(req.query.colecao == "colecao"){
-    //     buscaDiscoColecao(req.params)
-    // }else{
-    //     buscaDescDisco(req.params)
-    // }
-
-    if(!req.params.texto){
-        var texto = ""
-    }else{
-        var texto = req.params.texto
-    }
+    if(!req.params.texto) var texto = ""
+    else var texto = req.params.texto
 
     var condicao = { 
         page: page,
@@ -38,6 +29,6 @@ exports.encontraDisco = async function(req, res){
         skip: page * limit,
         texto: '%' +texto+ '%'
     }
-    
+
     serviceDisco.encontraDisco(condicao, res)
 }
