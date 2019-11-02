@@ -1,7 +1,7 @@
 const modelDisco = require('../model/disco_model')
-var mysql = require('mysql');
-
-var connection = require('../config/env')
+const serviceDisco = require('../service/buscaDisco_service')
+const mysql = require('mysql');
+const connection = require('../config/env')
 
 exports.salvaDisco = function(req, res){
     console.log("teste")
@@ -9,39 +9,35 @@ exports.salvaDisco = function(req, res){
 
 exports.buscaDisco = async function(req, res){
     condicao = req.params.id
-    var conexao = mysql.createConnection(connection.mysql)
-    conexao.query(
-        `select  
-        D.ID_DISCO AS idDisco,
-        D.NOME_DISCO AS nomeDisco,
-        D.DESC_DISCO AS descricao,
-        D.DATA_LANCAMENTO AS dataLancamento,
-        D.CARACTERISTICAS AS caractristicas
-        from desafioPD.disco_tb D
-        where ID_DISCO = ${condicao}`,        
-    function (error, results) {
-            if (error) {
-                console.error(error)
-                return res.status(500).send({mensagem: "Erro ao consultar disco"})
-            }else if(!results.length){
-                return res.status(400).send({mensagem: "Nenhum disco encontrado"})
-            }else{
-                return res.status(200).send(results)
-            }
-        });
+    serviceDisco.encontraDiscoId(condicao, res)
+}
 
-    // if(!req.params.id){
-    //     return res.status(400).send({ mensagem: 'Id do disco é obrigatório para consulta!'})
-    // }
-    
-    // let retornoBusca = await serviceDisco.encontraDisco(req.params.id)
-    
-    // if(retornoBusca.message){
-    //     return res.status(500).send({ mensagem: 'Erro ao consultar'})
-    // }else if(retornoBusca.length){
-    //     return res.status(400).send({ mensagem: 'Nenhum disco encontrado para a consulta!'})
+exports.encontraDisco = async function(req, res){
+    var page = req.params.page
+    var limit = 50
+
+    // if(req.query.action == "lancamento"){
+    //     buscaDiscoDtLancamento(req.params)
+    // }else if(req.query.action == "disco"){
+    //     buscaDisco(req.params)
+    // }else if(req.query.colecao == "colecao"){
+    //     buscaDiscoColecao(req.params)
     // }else{
-    //     return res.status(200).send(retornoBusca)
+    //     buscaDescDisco(req.params)
     // }
+
+    if(!req.params.texto){
+        var texto = ""
+    }else{
+        var texto = req.params.texto
+    }
+
+    var condicao = { 
+        page: page,
+        limit: limit,
+        skip: page * limit,
+        texto: '%' +texto+ '%'
+    }
     
+    serviceDisco.encontraDisco(condicao, res)
 }
