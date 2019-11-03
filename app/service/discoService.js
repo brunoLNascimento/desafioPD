@@ -5,24 +5,26 @@ const connection = require('../config/env')
 
 exports.criaDisco = function(disco, res){
     var conexao = mysql.createConnection(connection.mysql)
-    var sql = `
-            INSERT INTO desafioPD.disco_tb 
-            ( NOME_DISCO, DESC_DISCO, DATA_LANCAMENTO, CARACTERISTICAS, ID_COLECAO, ATIVO)
-            VALUES 
-            ${disco.NOME_DISCO}, ${disco.DESC_DISCO}, ${disco.DATA_LANCAMENTO}, ${disco.CARACTERISTICAS}, ${disco.ID_COLECAO}, ${disco.ATIVO}
-            `
-        
+    var sql = `INSERT INTO disco_tb 
+                    (NOME_DISCO, DESC_DISCO, DATA_LANCAMENTO, CARACTERISTICAS, ID_COLECAO, ATIVO)
+               VALUES ` 
     
-            conexao.query(sql, function (err, result) {
+    var values = `(
+        '${disco.NOME_DISCO}', 
+        '${disco.DESC_DISCO}',
+        '${disco.DATA_LANCAMENTO}', 
+        '${disco.CARACTERISTICAS}',
+        '${disco.ID_COLECAO}', 
+        '${disco.ATIVO}'
+    )`
     
+    conexao.query(sql + values, function (err, result) {
         if (err) {
-            console.error(err)
             return res.status(500).send({mensagem: "Erro ao salvar disco"})
         }else{
-            return res.status(200).send(result)
+            return res.status(200).send({mensagem: "Disco cadastrato com sucesso"})
         }
     })
-    
 }
 
 exports.encontraDiscoId = function(condicao, res){
@@ -42,7 +44,6 @@ exports.encontraDiscoId = function(condicao, res){
             ATIVO = 1`,        
     function (error, results) {
         if (error) {
-            console.error(error)
             return res.status(500).send({mensagem: "Erro ao consultar disco"})
         }else if(!results.length){
             return res.status(400).send({mensagem: "Nenhum disco encontrado"})

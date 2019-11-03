@@ -1,11 +1,20 @@
 const serviceDisco = require('../service/discoService')
+const serviceColecao = require('../service/colecaoService')
 const util = require('../util/validaUtil')
 
 
-exports.cadastraDisco = function(req, res){
+exports.cadastraDisco = async function(req, res){
     var body = req.body
-    var salvaDisco =  util.validaParametrosDisco(body, res)
-    console.log(salvaDisco)
+    var consultaColecao = await serviceColecao.colecao(body, res)
+    
+    if(!consultaColecao.length){
+        return res.status(400).send({message: "Coleção: "+body.nomeColecao+" não está cadastrada"})
+    }
+
+    body.consultaColecao = consultaColecao[0]
+    var salvaDisco =  await util.validaParametrosDisco(body, res)   
+    
+    if(salvaDisco.statusCode) return false
 
     serviceDisco.criaDisco(salvaDisco, res)
 

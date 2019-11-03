@@ -1,5 +1,27 @@
 const mysql = require('mysql');
 const connection = require('../config/env')
+const moment = require('moment')
+
+exports.criaColecao = function(colecao, res){
+    var conexao = mysql.createConnection(connection.mysql)
+    var sql = `INSERT INTO colecao_tb 
+                    (NOME_COLECAO, DESC_COLECAO, DATA_CRIACAO, ATIVO)
+               VALUES ` 
+    var values = `(
+        '${colecao.nomeColecao}', 
+        '${colecao.descrColecao}',
+        '${moment().format("YYYY-MM-DD")}', 
+        '1'
+    )`
+    
+    conexao.query(sql + values, function (err, result) {
+        if (err) {
+            return res.status(500).send({mensagem: "Erro ao salvar disco"})
+        }else{
+            return res.status(200).send({mensagem: "Disco cadastrato com sucesso"})
+        }
+    })
+}
 
 exports.encontraColecaoId = function(condicao, res){
     var conexao = mysql.createConnection(connection.mysql)
@@ -52,7 +74,7 @@ exports.encontraColecao = function(condicao, res){
             ID_DISCO DESC 
         LIMIT 
             ?, ?`,
-        [condicao.texto, condicao.skip, condicao.limit],
+        [condicao.colecao, condicao.skip, condicao.limit],
         (error, results) => {
             if (error) {
                 return res.status(500).send({mensagem: "Erro ao consultar disco"})
@@ -66,4 +88,21 @@ exports.encontraColecao = function(condicao, res){
             }
         }
     )
+}
+
+exports.colecao = async function(body, res){
+    var conexao = mysql.createConnection(connection.mysql)
+
+    return new Promise(async (resolve, reject) => {
+        conexao.query(
+            `SELECT * FROM colecao_tb where NOME_COLECAO = '${body.nomeColecao}'`,
+            async (error, results) => {
+                if (error) {
+                    reject(results)
+                }else{
+                    resolve(results)
+                }
+            }
+        )
+    })
 }
