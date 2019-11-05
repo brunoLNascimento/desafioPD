@@ -41,3 +41,24 @@ exports.encontraDisco = async function(req, res){
 
     serviceDisco.encontraDisco(condicao, res)
 }
+
+exports.editaDisco = async function(req, res){
+    var body = req.body
+    var consultaColecao = await serviceColecao.colecao(body, res)
+    
+    if(!consultaColecao.length){
+        return res.status(400).send({message: "Coleção: "+body.nomeColecao+" não está cadastrada"})
+    }
+
+    body.consultaColecao = consultaColecao[0]
+    var salvaDisco =  await util.validaParametrosDisco(body, res)   
+    
+    if(salvaDisco.statusCode) return false
+    
+    var discoEncontrado = await serviceDisco.disco(body.idDisco, res)
+
+    salvaDisco.disco = discoEncontrado[0]
+    serviceDisco.editaDisco(salvaDisco, res)
+}
+
+

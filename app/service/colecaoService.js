@@ -95,7 +95,7 @@ exports.colecao = async function(body, res){
 
     return new Promise(async (resolve, reject) => {
         conexao.query(
-            `SELECT * FROM colecao_tb where NOME_COLECAO = '${body.nomeColecao}'`,
+            `SELECT * FROM colecao_tb where NOME_COLECAO = '${body.nomeColecao}' AND ATIVO = 1`,
             async (error, results) => {
                 if (error) {
                     reject(results)
