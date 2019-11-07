@@ -5,24 +5,48 @@ const util = require('../util/validaUtil')
 
 exports.cadastraDisco = async function(req, res){
     var body = req.body
-    var consultaColecao = await serviceColecao.colecao(body, res)
     
-    if(!consultaColecao.length){
-        return res.status(400).send({message: "Coleção: "+body.nomeColecao+" não está cadastrada"})
-    }
+    await serviceColecao.colecao(body,function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao consultar coleção"})
+        }
+        if(!response.length){
+            return res.status(400).send({message: "Coleção: "+body.nomeColecao+" não está cadastrada"})
+        }else{
+            body.colecaoEncontrada = response[0]
+        }
+    })
 
-    body.consultaColecao = consultaColecao[0]
-    var salvaDisco =  await util.validaParametrosDisco(body, res)   
-    
-    if(salvaDisco.statusCode) return false
+    //body.consultaColecao = consultaColecao[0]
+    var salvaDisco =  await util.validaParametrosDisco(body, res)  
 
-    serviceDisco.criaDisco(salvaDisco, res)
-
+    serviceDisco.criaDisco(salvaDisco, function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao cadastrar disco"})
+        }else{
+            return res.status(200).send({
+                mensagem: "Disco cadastrado com sucesso!",
+                disco: response
+            })
+        }
+    })
 }
 
 exports.buscaDisco = async function(req, res){
     condicao = req.params.id
-    serviceDisco.encontraDiscoId(condicao, res)
+    serviceDisco.encontraDiscoId(condicao, function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao consultar disco"})
+        }
+        if(!response.length){
+            return res.status(400).send({message: "Nenhum disco encontrado"})
+        }else{
+            return res.status(200).send({
+                mensagem: "Discos encontrados para a busca: " +response.length,
+                discos: response
+            })
+        }
+    })
 }
 
 exports.encontraDisco = async function(req, res){
@@ -39,26 +63,60 @@ exports.encontraDisco = async function(req, res){
         texto: '%' +texto+ '%'
     }
 
-    serviceDisco.encontraDisco(condicao, res)
+    serviceDisco.encontraDisco(condicao, function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao consultar disco"})
+        }
+        if(!response.length){
+            return res.status(400).send({message: "Nenhum disco encontrado"})
+        }else{
+            return res.status(200).send({
+                mensagem: "Discos encontrados para a busca: " +response.length,
+                discos: response
+            })
+        }
+    })
 }
 
 exports.editaDisco = async function(req, res){
-    var body = req.body
-    var consultaColecao = await serviceColecao.colecao(body, res)
+    let body = req.body
     
-    if(!consultaColecao.length){
-        return res.status(400).send({message: "Coleção: "+body.nomeColecao+" não está cadastrada"})
-    }
+    var colecaoEncontrada = await serviceColecao.colecao(body, function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao consultar coleção"})
+        }
+        if(!response.length){
+            return res.status(400).send({message: "Coleção: "+body.nomeColecao+" não está cadastrada"})
+        }else{
+            colecaoEncontrada = response[0]
+        }
+    })
+    
+    var discoEncontrado = await serviceDisco.disco(body.idDisco, function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao consultar disco!"})
+        }
+        if(!response.length){
+            return res.status(400).send({message: "Nenhum disco encontrado!"})
+        }else{
+             discoEncontrado = response[0]
+        }
+    })
 
-    body.consultaColecao = consultaColecao[0]
-    var salvaDisco =  await util.validaParametrosDisco(body, res)   
-    
-    if(salvaDisco.statusCode) return false
-    
-    var discoEncontrado = await serviceDisco.disco(body.idDisco, res)
+    //falta verificar itens q serão salvos
+    discoEncontrado.idColecao = colecaoEncontrada.ID_COLECAO
+    var salvaDisco = util.validaEdicaoDisco(discoEncontrado, body)
 
-    salvaDisco.disco = discoEncontrado[0]
-    serviceDisco.editaDisco(salvaDisco, res)
+    serviceDisco.editaDisco(salvaDisco, function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao editar disco!"})
+        }
+        if(!response){
+            return res.status(400).send({message: "Não foi possível editar disco!"})
+        }else{
+            return res.status(200).send({message: "Disco atualizado com sucesso!"})
+        }
+    })
 }
 
 

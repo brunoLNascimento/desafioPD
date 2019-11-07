@@ -24,3 +24,41 @@ exports.validaParametrosDisco = function(body, res){
 
     return disco
 }
+
+
+exports.validaEdicaoDisco = function(discoEncontrado, body){
+    var salvaDisco = {}
+
+    //monta query para atualizar disco
+    if(body.nomeDisco && body.nomeDisco != discoEncontrado.nomeDisco ){
+        salvaDisco.NOME_DISCO = body.nomeDisco
+    }else{
+        salvaDisco.NOME_DISCO = discoEncontrado.NOME_DISCO
+    }
+
+    if(body.descDisco && body.descDisco != discoEncontrado.DESC_DISCO ){
+        salvaDisco.DESC_DISCO = body.descDisco
+    }else{
+        salvaDisco.DESC_DISCO = discoEncontrado.DESC_DISCO
+    }
+
+    if(body.caracteriscaDisco && body.caracteriscaDisco != discoEncontrado.CARACTERISTICAS ){
+        salvaDisco.CARACTERISTICAS = body.caracteriscaDisco
+    }else{
+        salvaDisco.CARACTERISTICAS = discoEncontrado.CARACTERISTICAS
+    }
+
+    if(body.idColecao && body.idColecao != discoEncontrado.idColecao ){
+        salvaDisco.ID_COLECAO = body.idColecao
+    }else{
+        salvaDisco.ID_COLECAO = discoEncontrado.ID_COLECAO
+    }
+
+    if(body.dataLancamento && body.dataLancamento != discoEncontrado.DATA_LANCAMENTO ){
+        salvaDisco.DATA_LANCAMENTO = body.dataLancamento
+    }else{
+        salvaDisco.DATA_LANCAMENTO = discoEncontrado.DATA_LANCAMENTO
+    }
+
+    return salvaDisco
+}

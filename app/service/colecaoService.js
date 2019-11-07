@@ -90,19 +90,17 @@ exports.encontraColecao = function(condicao, res){
     )
 }
 
-exports.colecao = async function(body, res){
+exports.colecao = async function(body, callback){
     var conexao = mysql.createConnection(connection.mysql)
 
-    return new Promise(async (resolve, reject) => {
-        conexao.query(
-            `SELECT * FROM colecao_tb where NOME_COLECAO = '${body.nomeColecao}' AND ATIVO = 1`,
-            async (error, results) => {
-                if (error) {
-                    reject(results)
-                }else{
-                    resolve(results)
-                }
+    await conexao.query(
+        `SELECT * FROM colecao_tb where NOME_COLECAO = '${body.nomeColecao}' AND ATIVO = 1`,
+        async (error, result) => {
+            if (error) {
+                callback(error, null)
+            }else{
+                callback(result, null)
             }
-        )
-    })
+        }
+    )
 }
