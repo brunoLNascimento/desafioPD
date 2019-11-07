@@ -125,3 +125,21 @@ exports.editaDisco = async function(param, callback){
         }
     })
 }
+
+
+exports.removeDisco = async function(idDisco, callback){
+    var conexao = mysql.createConnection(connection.mysql)
+    var sql = `UPDATE disco_tb 
+                SET 
+                    ATIVO = 0
+                WHERE
+                    ID_DISCO = ${idDisco}`
+
+    await conexao.query(sql, async (error, result) => {
+        if (err) {
+            callback(error, null)
+        }else{
+            callback(result, null)
+        }
+    })
+}

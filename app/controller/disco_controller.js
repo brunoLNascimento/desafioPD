@@ -103,7 +103,6 @@ exports.editaDisco = async function(req, res){
         }
     })
 
-    //falta verificar itens q serão salvos
     discoEncontrado.idColecao = colecaoEncontrada.ID_COLECAO
     var salvaDisco = util.validaEdicaoDisco(discoEncontrado, body)
 
@@ -120,3 +119,26 @@ exports.editaDisco = async function(req, res){
 }
 
 
+exports.removeDisco = async function(req, res){
+    var idDisco = req.params.id
+    
+    await serviceDisco.disco(idDisco, function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao consultar disco!"})
+        }
+        if(!response.length){
+            return res.status(400).send({message: "Nenhum disco encontrado!"})
+        }else{
+            serviceDisco.removeDisco(idDisco, function(err, response){
+                if(err){
+                    return res.status(500).send({mensagem: "Erro ao editar disco!"})
+                }
+                if(!response){
+                    return res.status(400).send({message: "Não foi possível editar disco!"})
+                }else{
+                    return res.status(200).send({message: "Disco deletado com sucesso!"})
+                }
+            })
+        }
+    })
+}
