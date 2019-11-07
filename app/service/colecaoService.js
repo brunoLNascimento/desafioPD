@@ -14,16 +14,15 @@ exports.criaColecao = function(colecao, res){
         '1'
     )`
     
-    conexao.query(sql + values, function (err, result) {
-        if (err) {
-            return res.status(500).send({mensagem: "Erro ao salvar disco"})
-        }else{
-            return res.status(200).send({mensagem: "Disco cadastrato com sucesso"})
-        }
+    conexao.query(sql + values
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
     })
 }
 
-exports.encontraColecaoId = function(condicao, res){
+exports.encontraColecaoId = function(condicao, callback){
     var conexao = mysql.createConnection(connection.mysql)
     conexao.query(
         `SELECT  
@@ -36,19 +35,14 @@ exports.encontraColecaoId = function(condicao, res){
             ID_COLECAO = ${condicao.id}
         AND 
             ATIVO = 1`,        
-    function (error, results) {
-            if (error) {
-                console.error(error)
-                return res.status(500).send({mensagem: "Erro ao consultar coleção"})
-            }else if(!results.length){
-                return res.status(400).send({mensagem: "Nenhuma coleção encontrado"})
-            }else{
-                return res.status(200).send(results)
-            }
-        });
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    })
 }
 
-exports.encontraColecao = function(condicao, res){
+exports.encontraColecao = function(condicao, callback){
     var conexao = mysql.createConnection(connection.mysql)
 
     conexao.query(
@@ -75,19 +69,11 @@ exports.encontraColecao = function(condicao, res){
         LIMIT 
             ?, ?`,
         [condicao.colecao, condicao.skip, condicao.limit],
-        (error, results) => {
-            if (error) {
-                return res.status(500).send({mensagem: "Erro ao consultar disco"})
-            }else if(!results.length){
-                return res.status(400).send({mensagem: "Nenhum disco encontrado"})
-            }else{
-                return res.status(200).send({
-                    mensagem: "Discos encontrados para a busca: " +results.length,
-                    res: results
-                })
-            }
-        }
-    )
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    })
 }
 
 exports.colecao = async function(body, callback){
@@ -95,12 +81,28 @@ exports.colecao = async function(body, callback){
 
     await conexao.query(
         `SELECT * FROM colecao_tb where NOME_COLECAO = '${body.nomeColecao}' AND ATIVO = 1`,
-        async (error, result) => {
-            if (error) {
-                callback(error, null)
-            }else{
-                callback(result, null)
-            }
-        }
-    )
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    })
+    
 }
+
+
+exports.removeColecao = async function(idDisco, callback){
+    var conexao = mysql.createConnection(connection.mysql)
+    var sql = `UPDATE colecao_tb 
+                SET 
+                    ATIVO = 0
+                WHERE
+                    ID_DISCO = ${idDisco}`
+
+    await conexao.query(sql, 
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    })
+}
+

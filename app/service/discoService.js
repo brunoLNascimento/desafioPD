@@ -18,13 +18,12 @@ exports.criaDisco = async function(disco, callback){
         '${disco.ATIVO}'
     )`
     
-    await conexao.query(sql + values, function (err, result) {
-        if (err) {
-            callback(error, null)
-        }else{
-            callback(results, null)
-        }
-    })
+    await conexao.query(sql + values
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    }) 
 }
 
 exports.encontraDiscoId = async function(condicao, callback){
@@ -42,13 +41,12 @@ exports.encontraDiscoId = async function(condicao, callback){
             ID_DISCO = ${condicao}
         AND 
             ATIVO = 1`,        
-    function (error, results) {
-        if (err) {
-            callback(error, null)
-        }else{
-            callback(results, null)
-        }
-    });
+   
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    }) 
 }
 
 exports.encontraDisco = async function(condicao, callback){
@@ -78,31 +76,24 @@ exports.encontraDisco = async function(condicao, callback){
         LIMIT 
             ?, ?`,
         [condicao.texto, condicao.skip, condicao.limit],
-        (error, results) => {
-            if (err) {
-                callback(error, null)
-            }else{
-                callback(results, null)
-            }
-        }
-    )
+
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    })   
 }
 
-exports.disco = async function(idDisco, res){
+exports.disco = async function(idDisco, callback){
     var conexao = mysql.createConnection(connection.mysql)
 
-    return new Promise(async (resolve, reject) => {
-        conexao.query(
-            `SELECT * FROM disco_tb where ID_DISCO = '${idDisco}' AND ATIVO = 1`,
-            async (error, results) => {
-                if (error) {
-                    reject(results)
-                }else{
-                    resolve(results)
-                }
-            }
-        )
-    })
+    conexao.query(
+        `SELECT * FROM disco_tb where ID_DISCO = '${idDisco}' AND ATIVO = 1`,
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    })   
 }
 
 exports.editaDisco = async function(param, callback){
@@ -117,13 +108,12 @@ exports.editaDisco = async function(param, callback){
                 WHERE
                     ID_DISCO = ${param.disco.ID_DISCO}`
 
-    await conexao.query(sql, async (error, result) => {
-        if (err) {
-            callback(error, null)
-        }else{
-            callback(result, null)
-        }
-    })
+    await conexao.query(sql,
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
+    })      
 }
 
 
@@ -135,11 +125,10 @@ exports.removeDisco = async function(idDisco, callback){
                 WHERE
                     ID_DISCO = ${idDisco}`
 
-    await conexao.query(sql, async (error, result) => {
-        if (err) {
-            callback(error, null)
-        }else{
-            callback(result, null)
-        }
+    await conexao.query(sql, 
+    ).then((result) => {
+        callback(null, result)
+    }).catch((err) => {
+        callback(err, null)
     })
 }
