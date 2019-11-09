@@ -2,35 +2,40 @@ const moment = require('moment')
 
 exports.validaParametrosDisco = function(body, res){
     if(!body.nomeDisco){
-        return res.status(400).send({message: "Nome do Disco é um campo obrigatório"})
-    }
-
-    if(!body.descDisco){
-        return res.status(400).send({message: "Descrição do Disco é um campo obrigatório"})
-    }
-
-    if(!body.nomeColecao){
-        return res.status(400).send({message: "Descrição do Disco é um campo obrigatório"})
+       return res.status(400).send({message: "Nome do Disco é um campo obrigatório"})
     }
 
     var disco = {
-        NOME_DISCO: body.descDisco,
-        DESC_DISCO: body.nomeDisco,
-        DATA_LANCAMENTO: moment().format('YYYY-MM-DD'),
-        CARACTERISTICAS: body.caracteriscaDisco,
-        ID_COLECAO: body.consultaColecao.ID_COLECAO,
+        NOME_DISCO: body.nomeDisco,
+        DATA_LANCAMENTO: body.dataLancamento ? body.dataLancamento: moment().format('DD/MM/YYYY'),
+        DESC_DISCO: body.descDisco ? body.descDisco: "-",
+        ID_COLECAO: body.idColecao,
         ATIVO: 1,
     }
 
     return disco
 }
 
+exports.validaParametrosColecao = function(body, res){
+    if(!body.nomeColecao){
+        return res.status(400).send({message: "Nome do Disco é um campo obrigatório"})
+    }
+
+    var colecao = {
+        nomeColecao: body.nomeColecao,
+        dataCriacao: moment().format('DD-MM-YYYY'),
+        ativo: "1"
+    }
+
+    return colecao
+}
 
 exports.validaEdicaoDisco = function(discoEncontrado, body){
     var salvaDisco = {}
-
+    salvaDisco.idDisco = body.idDisco
+    
     //monta query para atualizar disco
-    if(body.nomeDisco && body.nomeDisco != discoEncontrado.nomeDisco ){
+    if(body.nomeDisco && body.nomeDisco != discoEncontrado.NOME_DISCO ){
         salvaDisco.NOME_DISCO = body.nomeDisco
     }else{
         salvaDisco.NOME_DISCO = discoEncontrado.NOME_DISCO
@@ -42,13 +47,7 @@ exports.validaEdicaoDisco = function(discoEncontrado, body){
         salvaDisco.DESC_DISCO = discoEncontrado.DESC_DISCO
     }
 
-    if(body.caracteriscaDisco && body.caracteriscaDisco != discoEncontrado.CARACTERISTICAS ){
-        salvaDisco.CARACTERISTICAS = body.caracteriscaDisco
-    }else{
-        salvaDisco.CARACTERISTICAS = discoEncontrado.CARACTERISTICAS
-    }
-
-    if(body.idColecao && body.idColecao != discoEncontrado.idColecao ){
+    if(body.idColecao && body.idColecao != discoEncontrado.ID_COLECAO ){
         salvaDisco.ID_COLECAO = body.idColecao
     }else{
         salvaDisco.ID_COLECAO = discoEncontrado.ID_COLECAO
@@ -65,38 +64,20 @@ exports.validaEdicaoDisco = function(discoEncontrado, body){
 
 
 exports.validaEdicaoColecao = function(discoEncontrado, body){
-    var salvaDisco = {}
+    var colecao = {}
 
     //monta query para atualizar disco
-    if(body.nomeColecao && body.nomeColecao != discoEncontrado.nomeColecao ){
-        salvaDisco.NOME_COLECAO = body.nomeColecao
+    if(body.nomeColecao && body.nomeColecao != discoEncontrado.NOME_COLECAO ){
+        colecao.NOME_COLECAO = body.nomeColecao
     }else{
-        salvaDisco.NOME_COLECAO = discoEncontrado.NOME_COLECAO
+        colecao.NOME_COLECAO = discoEncontrado.NOME_COLECAO
     }
 
-    if(body.descDisco && body.descDisco != discoEncontrado.DESC_DISCO ){
-        salvaDisco.DESC_DISCO = body.descDisco
+    if(body.dataLancamento && body.dataLancamento != discoEncontrado.DATA_CRIACAO ){
+        colecao.DATA_CRIACAO = body.dataLancamento
     }else{
-        salvaDisco.DESC_DISCO = discoEncontrado.DESC_DISCO
+        colecao.DATA_CRIACAO = discoEncontrado.DATA_CRIACAO
     }
 
-    if(body.caracteriscaDisco && body.caracteriscaDisco != discoEncontrado.CARACTERISTICAS ){
-        salvaDisco.CARACTERISTICAS = body.caracteriscaDisco
-    }else{
-        salvaDisco.CARACTERISTICAS = discoEncontrado.CARACTERISTICAS
-    }
-
-    if(body.idColecao && body.idColecao != discoEncontrado.idColecao ){
-        salvaDisco.ID_COLECAO = body.idColecao
-    }else{
-        salvaDisco.ID_COLECAO = discoEncontrado.ID_COLECAO
-    }
-
-    if(body.dataLancamento && body.dataLancamento != discoEncontrado.DATA_LANCAMENTO ){
-        salvaDisco.DATA_LANCAMENTO = body.dataLancamento
-    }else{
-        salvaDisco.DATA_LANCAMENTO = discoEncontrado.DATA_LANCAMENTO
-    }
-
-    return salvaDisco
+    return colecao
 }

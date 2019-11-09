@@ -15,8 +15,7 @@ server.use(function(req, res, next) {
     next();
 });
 
-consign().include('app/model')
-        .then('app/controller')
+consign().include('app/controller')
         .then('app/route')
         .then('app/config')
         .then('app/util')

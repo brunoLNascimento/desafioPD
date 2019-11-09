@@ -6,10 +6,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "scripts": {
+    "start": "node serve"
+  },
   "dependencies": {
+    "body-parse": "^0.1.0",
+    "consign": "^0.1.6",
+    "express": "^4.17.1",
     "mysql": "^2.15.0",
+    "python": "0.0.4",
     "restify": "^7.0.0",
-    "restify-errors": "^6.0.0",
-    "consign": "^0.1.6"
+    "restify-errors": "^6.0.0"
   }
 }

@@ -1,0 +1,107 @@
+//cadastro coleção
+localhost:3003/cadastraColecao
+
+{
+	"nomeColecao": "MPB"
+}
+
+//busca coleção por id
+localhost:3003/buscaColecaoId/1
+
+//busca todas as coleções
+//a rota /buscaColecao/0/ o valor númerico é a página que será consultada no banco 
+localhost:3003/buscaColecao/0/
+
+//busca todas as coleções por nome
+//a rota /buscaColecao/0/ o valor númerico é a página que será consultada no banco 
+localhost:3003/buscaColecao/0/mpb
+
+//edição coleção
+localhost:3003/editaColecao
+{
+    "idColecao": "1",
+	"nomeColecao":"rock"
+}
+
+//deleta coleção por id, delete lógico
+localhost:3003/removeColecao/1
+
+/**
+ * fim coleção
+ * inicio disco
+ */
+
+//criar disco
+localhost:3003/cadastraDisco/
+{
+    "nomeDisco": "Frejat",
+    "dataLancamento": "08/11/2019",
+    "descDisco": "Gravação DVD ao vivo!",
+    "idColecao": 1, 
+}
+
+//consultar disco por nome disco
+localhost:3003/buscaDisco/0/frejat
+
+retorno
+{
+    "mensagem": "Discos encontrados para a busca: 1",
+    "discos": [
+        {
+            "idDisco": 1,
+            "nomeDisco": "frejat",
+            "descricao": "Gravação DVD ao vivo!",
+            "dataLancamento": "08/11/2019",
+            "colecao": "MPB"
+        }
+    ]
+}
+
+//consultar disco, busca retorna todos os discos limite 50 itens
+//na rota /buscaDisco/0/ o valor númerico é a página que será consultada no banco 
+localhost:3003/buscaDisco/0/
+localhost:3003/buscaDisco/1/
+
+retorno
+{
+    "mensagem": "Discos encontrados para a busca: 1",
+    "discos": [
+        {
+            "idDisco": 1,
+            "nomeDisco": "frejat",
+            "descricao": "Gravação DVD ao vivo!",
+            "dataLancamento": "08/11/2019",
+            "colecao": "MPB"
+        }
+    ]
+}
+
+//consultar disco por ID
+localhost:3003/buscaDiscoId/1
+retorno
+{
+    "mensagem": "Disco encontrado",
+    "discos": [
+        {
+            "idDisco": 1,
+            "nomeDisco": "frejat",
+            "descricao": "Gravação DVD ao vivo!",
+            "dataLancamento": "08/11/2019"
+        }
+    ]
+}
+
+//edita disco
+//edição campo
+localhost:3003/editaDisco/
+{
+    "idDisco": 1,
+	"idColecao": 2,
+	"nomeDisco": "frejat",
+    "descDisco": "Gravação DVD ao vivo!",
+    "dataLancamento": "09/11/2019"
+}
+
+//remove disco por id
+localhost:3003/removeDisco/1
+

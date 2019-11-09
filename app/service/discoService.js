@@ -3,53 +3,61 @@ const connection = require('../config/env')
 
 
 
-exports.criaDisco = async function(disco, callback){
+exports.criaDisco = async function(disco, res){
     var conexao = mysql.createConnection(connection.mysql)
     var sql = `INSERT INTO disco_tb 
-                    (NOME_DISCO, DESC_DISCO, DATA_LANCAMENTO, CARACTERISTICAS, ID_COLECAO, ATIVO)
+                    (NOME_DISCO, DATA_LANCAMENTO, DESC_DISCO, ID_COLECAO, ATIVO)
                VALUES ` 
     
     var values = `(
         '${disco.NOME_DISCO}', 
-        '${disco.DESC_DISCO}',
         '${disco.DATA_LANCAMENTO}', 
-        '${disco.CARACTERISTICAS}',
+        '${disco.DESC_DISCO}',
         '${disco.ID_COLECAO}', 
         '${disco.ATIVO}'
     )`
     
-    await conexao.query(sql + values
-    ).then((result) => {
-        callback(null, result)
-    }).catch((err) => {
-        callback(err, null)
-    }) 
+    await conexao.query(sql + values, 
+        function(err, response){
+            if(err){
+                return res.status(500).send({mensagem: "Erro ao cadastrar disco"})
+            }else{
+                return res.status(200).send({ mensagem: "Disco cadastrado com sucesso!" })
+            }
+        }
+    )
 }
 
-exports.encontraDiscoId = async function(condicao, callback){
+exports.encontraDiscoId = async function(condicao, res){
     var conexao = mysql.createConnection(connection.mysql)
     await conexao.query(
         `SELECT  
             D.ID_DISCO AS idDisco,
             D.NOME_DISCO AS nomeDisco,
             D.DESC_DISCO AS descricao,
-            D.DATA_LANCAMENTO AS dataLancamento,
-            D.CARACTERISTICAS AS caractristicas
+            D.DATA_LANCAMENTO AS dataLancamento
         FROM
             desafioPD.disco_tb D
         WHERE 
             ID_DISCO = ${condicao}
         AND 
             ATIVO = 1`,        
-   
-    ).then((result) => {
-        callback(null, result)
-    }).catch((err) => {
-        callback(err, null)
-    }) 
+    function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao consultar disco"})
+        }
+        if(!response.length){
+            return res.status(400).send({message: "Nenhum disco encontrado"})
+        }else{
+            return res.status(200).send({
+                mensagem: "Disco encontrado",
+                discos: response
+            })
+        }
+    })
 }
 
-exports.encontraDisco = async function(condicao, callback){
+exports.encontraDisco = async function(condicao, res){
     var conexao = mysql.createConnection(connection.mysql)
 
     await conexao.query(
@@ -58,9 +66,7 @@ exports.encontraDisco = async function(condicao, callback){
             D.NOME_DISCO AS nomeDisco,
             D.DESC_DISCO AS descricao,
             D.DATA_LANCAMENTO AS dataLancamento,
-            D.CARACTERISTICAS AS caractristicas,
-            C.NOME_COLECAO AS colecao,
-            C.DESC_COLECAO AS descrColecao
+            C.NOME_COLECAO AS colecao
         FROM 
             desafioPD.disco_tb D,
             desafioPD.colecao_tb C
@@ -69,55 +75,75 @@ exports.encontraDisco = async function(condicao, callback){
         AND
             D.ATIVO = 1   
         AND
-            DESC_DISCO LIKE N? 
+            NOME_DISCO LIKE N? 
 
         ORDER BY 
             ID_DISCO DESC 
         LIMIT 
             ?, ?`,
         [condicao.texto, condicao.skip, condicao.limit],
-
-    ).then((result) => {
-        callback(null, result)
-    }).catch((err) => {
-        callback(err, null)
-    })   
+    function(err, response){
+        if(err){
+            return res.status(500).send({mensagem: "Erro ao consultar disco"})
+        }
+        if(!response.length){
+            return res.status(400).send({message: "Nenhum disco encontrado"})
+        }else{
+            return res.status(200).send({
+                mensagem: "Discos encontrados para a busca: " +response.length,
+                discos: response
+            })
+        }
+    })
 }
 
-exports.disco = async function(idDisco, callback){
+exports.disco = function(idDisco, res){
     var conexao = mysql.createConnection(connection.mysql)
 
-    conexao.query(
-        `SELECT * FROM disco_tb where ID_DISCO = '${idDisco}' AND ATIVO = 1`,
-    ).then((result) => {
-        callback(null, result)
-    }).catch((err) => {
-        callback(err, null)
-    })   
+    return new Promise((resolve) => {
+        conexao.query(
+            `SELECT * FROM disco_tb where ID_DISCO = '${idDisco}' AND ATIVO = 1`,
+            (err, response) =>{
+            if(err){
+                return res.status(500).send({mensagem: "Erro ao consultar disco!"})
+            }
+            if(!response.length){
+                return res.status(400).send({message: "Nenhum disco encontrado!"})
+            }else{
+                resolve(response[0])
+            }  
+        })
+    })
 }
 
-exports.editaDisco = async function(param, callback){
+exports.editaDisco = function(param, res){
     var conexao = mysql.createConnection(connection.mysql)
-    var sql = `UPDATE disco_tb 
+    var sql =   `UPDATE 
+                    disco_tb 
                 SET 
                     NOME_DISCO = '${param.NOME_DISCO}', 
                     DESC_DISCO = '${param.DESC_DISCO}',
                     ID_COLECAO = '${param.ID_COLECAO}',
-                    CARACTERISTICAS = '${param.CARACTERISTICAS}',
-                    DATA_LANCAMENTO = '${param.disco.DATA_LANCAMENTO}'
+                    DATA_LANCAMENTO = '${param.DATA_LANCAMENTO}'
                 WHERE
-                    ID_DISCO = ${param.disco.ID_DISCO}`
+                    ID_DISCO = ${param.idDisco}`
 
-    await conexao.query(sql,
-    ).then((result) => {
-        callback(null, result)
-    }).catch((err) => {
-        callback(err, null)
-    })      
+    return new Promise (() => {
+        conexao.query(sql, (err, response) => {
+            if(err){
+                return res.status(500).send({mensagem: "Erro ao editar disco!"})
+            }
+            if(!response){
+                return res.status(400).send({message: "Não foi possível editar disco!"})
+            }else{
+                return res.status(200).send({message: "Disco atualizado com sucesso!"})
+            }
+        })
+    }) 
 }
 
 
-exports.removeDisco = async function(idDisco, callback){
+exports.removeDisco = function(idDisco, res){
     var conexao = mysql.createConnection(connection.mysql)
     var sql = `UPDATE disco_tb 
                 SET 
@@ -125,10 +151,17 @@ exports.removeDisco = async function(idDisco, callback){
                 WHERE
                     ID_DISCO = ${idDisco}`
 
-    await conexao.query(sql, 
-    ).then((result) => {
-        callback(null, result)
-    }).catch((err) => {
-        callback(err, null)
+    return new Promise(() => {
+        conexao.query(sql, (err, response) => {
+            if(err){
+                return res.status(500).send({mensagem: "Erro ao editar disco!"})
+            }
+            if(!response){
+                return res.status(400).send({message: "Não foi possível editar disco!"})
+            }else{
+                return res.status(200).send({message: "Disco deletado com sucesso!"})
+            }
+        }) 
     })
+     
 }
