@@ -13,6 +13,7 @@
     "body-parse": "^0.1.0",
     "consign": "^0.1.6",
     "express": "^4.17.1",
+    "moment": "^2.24.0",
     "mysql": "^2.15.0",
     "python": "0.0.4",
     "restify": "^7.0.0",
